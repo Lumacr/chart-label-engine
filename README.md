@@ -87,3 +87,9 @@ The initial project structure, CMake configuration, GoogleTest integration and G
 - [ ] Basic label placement
 - [ ] Optimization algorithms
 - [ ] Performance benchmarking and improvements
+
+
+## License
+
+This project is licensed under the MIT License.
+See the [LICENSE](LICENSE) file for details.
