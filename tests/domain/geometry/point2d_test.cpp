@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-
+#include <cmath>
 #include <limits>
 #include <stdexcept>
 
