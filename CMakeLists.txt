@@ -17,6 +17,8 @@ add_library(chart_label_engine STATIC
         src/domain/geometry/rectangle.cpp
         src/domain/label/label.cpp
         src/domain/placement/placement.cpp
+        src/domain/chart/label_target.cpp
+        src/domain/chart/chart.cpp
 )
 
 target_include_directories(chart_label_engine

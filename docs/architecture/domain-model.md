@@ -1,10 +1,11 @@
+
 # Domain Model
 
 ## 1. Overview
 
 The Chart Label Placement Engine is designed to automatically position labels in charts while minimizing visual overlap and preserving their relationship with the associated data points.
 
-The domain model separates the concepts of geometric representation, label definition, and label placement.
+The domain model separates the concepts of geometric representation, label definition, placement problem definition, and label placement.
 
 This separation keeps the core domain independent of rendering technologies and placement algorithms.
 
@@ -78,17 +79,50 @@ A placement must always represent a valid geometric region. Invalid rectangle bo
 
 `Placement` represents an assigned position but does not determine where a label should be placed. Automatic positioning and optimization belong to separate components.
 
+### 2.5 LabelTarget
+
+`LabelTarget` represents a chart element that requires a label to be positioned.
+
+It encapsulates:
+
+- A `Label` containing the textual content and required dimensions.
+- A `Point2D` representing the original position of the associated chart element, referred to as its anchor.
+
+The anchor identifies the position that the label should remain visually associated with. It is independent of the label's eventual position.
+
+A `LabelTarget` defines an input to the placement problem rather than an assigned position.
+
+Multiple label targets may share the same anchor position. The anchor is not required to lie within any particular plotting area.
+
+### 2.6 Chart
+
+`Chart` represents the placement problem by grouping the available plotting area and the chart elements that require labels.
+
+It encapsulates:
+
+- A `Rectangle` representing the plotting area (`plot_area`).
+- A collection of `LabelTarget` objects representing the elements that require labels.
+
+The plotting area defines the geometric region available for label placement. The collection contains the input data required by subsequent placement operations.
+
+A chart may contain an empty collection of label targets, representing a chart with no labels to position.
+
+The collection preserves the insertion order of its elements. Multiple label targets may share the same anchor position, and their anchors are not required to lie within the plotting area.
+
+`Chart` represents the input to the placement problem. It does not contain placement results or implement positioning algorithms.
+
 ## 3. Separation of Responsibilities
 
-The domain model separates three concerns:
+The domain model separates four concerns:
 
 - **Geometry:** represents points and rectangular regions.
 - **Label definition:** represents textual content and its dimensions.
-- **Label placement:** associates a label with a geometric position.
+- **Placement problem definition:** `Chart` groups the plotting area and `LabelTarget` objects, which associate labels with their original anchor positions.
+- **Label placement:** associates a label with a geometric position through `Placement`.
 
 This separation avoids coupling textual content to geometric positioning or rendering concerns.
 
-For example, the same label definition can be considered at multiple candidate positions without changing the label itself.
+For example, a label target can be used as input for generating multiple candidate positions without modifying either the label definition or its original anchor. The resulting placements can then be evaluated independently of the original chart data.
 
 ## 4. Design Principles
 
@@ -98,6 +132,6 @@ The domain model follows these principles:
 - **Value semantics:** core domain objects are modeled as values rather than entities with independent identities.
 - **Encapsulation:** internal state is protected and exposed through controlled interfaces.
 - **Validation at construction:** invalid domain objects are rejected when created.
-- **Separation of concerns:** geometry, label definition, placement, and rendering remain independent.
+- **Separation of concerns:** geometry, label definition, placement problem definition, placement, and rendering remain independent.
 
 These principles provide a foundation for implementing placement algorithms without coupling them to presentation or infrastructure details.
