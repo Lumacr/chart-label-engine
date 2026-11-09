@@ -13,6 +13,8 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 
 add_library(chart_label_engine STATIC
         src/chart_label_engine.cpp
+        src/domain/geometry/point2d.cpp
+        src/domain/geometry/rectangle.cpp
 )
 
 target_include_directories(chart_label_engine

@@ -10,6 +10,8 @@ FetchContent_MakeAvailable(googletest)
 
 add_executable(chart_label_engine_tests
         test_main.cpp
+        domain/geometry/point2d_test.cpp
+        domain/geometry/rectangle_test.cpp
 )
 
 target_link_libraries(chart_label_engine_tests
