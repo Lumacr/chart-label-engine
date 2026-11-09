@@ -13,6 +13,7 @@ add_executable(chart_label_engine_tests
         domain/geometry/point2d_test.cpp
         domain/geometry/rectangle_test.cpp
         domain/label/label_test.cpp
+        domain/placement/placement_test.cpp
 )
 
 target_link_libraries(chart_label_engine_tests
