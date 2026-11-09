@@ -182,6 +182,28 @@ The algorithm has O(n²) time complexity, where n is the number of placements.
 
 This implementation provides a simple baseline for future collision detection optimizations.
 
+### 3.3 PlacementScore
+
+`PlacementScore` represents the result of evaluating a complete placement solution.
+
+It contains three scoring criteria:
+
+- Collision count.
+- Boundary penalty.
+- Anchor distance.
+
+Lower values represent better results for all criteria.
+
+Scores are compared lexicographically, following this priority:
+
+1. Collision count.
+2. Boundary penalty.
+3. Anchor distance.
+
+This comparison ensures that reducing collisions always takes priority over improving the remaining criteria.
+
+`PlacementScore` is independent of charts, placements, and optimization algorithms.
+
 ## 4. Separation of Responsibilities
 
 The architecture separates the following concerns:
@@ -192,6 +214,7 @@ The architecture separates the following concerns:
 - **Label placement:** associates a label with a geometric position through `Placement`.
 - **Candidate generation:** the application layer generates alternative placements through `CandidateGenerator`.
 - **Collision detection:** identifies conflicting placements through `CollisionDetector`, returning their indices as `CollisionPair` objects.
+- **Placement scoring:** evaluates complete placement solutions using collision count, boundary penalty, and anchor distance.
 
 This separation avoids coupling textual content to geometric positioning or rendering concerns.
 
@@ -209,5 +232,7 @@ The architecture follows these principles:
 - **Determinism:** candidate generation produces the same results in the same order for identical inputs and configuration.
 - **Layer separation:** application services use domain objects without moving application-specific responsibilities into the domain model.
 - **Deterministic collision detection:** collision pairs are evaluated once and returned in a consistent order.
+- **Independent scoring:** placement evaluation is separated from candidate generation and optimization.
+- **Deterministic comparison:** placement scores use a consistent lexicographical ordering.
 
 These principles provide a foundation for implementing increasingly sophisticated placement algorithms without coupling them to presentation or infrastructure details.
