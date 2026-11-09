@@ -18,6 +18,7 @@ add_executable(chart_label_engine_tests
         domain/chart/chart_test.cpp
 
         application/placement/candidate_generator_test.cpp
+        application/placement/collision_detector_test.cpp
 )
 
 target_link_libraries(chart_label_engine_tests

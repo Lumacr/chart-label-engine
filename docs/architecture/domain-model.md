@@ -156,6 +156,32 @@ The generator does not:
 
 These responsibilities belong to subsequent stages of the placement pipeline.
 
+### 3.2 CollisionDetector
+
+`CollisionDetector` identifies geometric conflicts between a collection of label placements.
+
+It receives a collection of `Placement` objects and returns the pairs of placements whose geometric bounds overlap.
+
+Each detected collision is represented by a `CollisionPair`, containing the indices of the two placements in the original collection.
+
+The detector uses `Placement::bounds()` to obtain the geometric bounds and `Rectangle::overlaps()` to determine whether two placements collide.
+
+The initial implementation uses a brute-force pairwise comparison algorithm.
+
+Each pair is evaluated exactly once, with the lower index stored first. Results are returned in deterministic order.
+
+The detector does not:
+
+- Compare a placement with itself.
+- Consider edge or corner contact a collision.
+- Modify the input placements.
+- Filter placements based on the chart's plotting area.
+- Calculate placement scores or select optimal positions.
+
+The algorithm has O(n²) time complexity, where n is the number of placements.
+
+This implementation provides a simple baseline for future collision detection optimizations.
+
 ## 4. Separation of Responsibilities
 
 The architecture separates the following concerns:
@@ -165,6 +191,7 @@ The architecture separates the following concerns:
 - **Placement problem definition:** `Chart` groups the plotting area and `LabelTarget` objects, which associate labels with their original anchor positions.
 - **Label placement:** associates a label with a geometric position through `Placement`.
 - **Candidate generation:** the application layer generates alternative placements through `CandidateGenerator`.
+- **Collision detection:** identifies conflicting placements through `CollisionDetector`, returning their indices as `CollisionPair` objects.
 
 This separation avoids coupling textual content to geometric positioning or rendering concerns.
 
@@ -181,5 +208,6 @@ The architecture follows these principles:
 - **Separation of concerns:** geometry, label definition, placement problem definition, placement, candidate generation, and rendering remain independent.
 - **Determinism:** candidate generation produces the same results in the same order for identical inputs and configuration.
 - **Layer separation:** application services use domain objects without moving application-specific responsibilities into the domain model.
+- **Deterministic collision detection:** collision pairs are evaluated once and returned in a consistent order.
 
 These principles provide a foundation for implementing increasingly sophisticated placement algorithms without coupling them to presentation or infrastructure details.
