@@ -16,6 +16,8 @@ add_executable(chart_label_engine_tests
         domain/placement/placement_test.cpp
         domain/chart/label_target_test.cpp
         domain/chart/chart_test.cpp
+
+        application/placement/candidate_generator_test.cpp
 )
 
 target_link_libraries(chart_label_engine_tests

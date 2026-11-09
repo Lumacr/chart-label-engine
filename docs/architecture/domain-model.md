@@ -7,6 +7,8 @@ The Chart Label Placement Engine is designed to automatically position labels in
 
 The domain model separates the concepts of geometric representation, label definition, placement problem definition, and label placement.
 
+The application layer builds on these domain concepts to perform operations such as candidate generation.
+
 This separation keeps the core domain independent of rendering technologies and placement algorithms.
 
 ## 2. Core Domain Concepts
@@ -111,27 +113,73 @@ The collection preserves the insertion order of its elements. Multiple label tar
 
 `Chart` represents the input to the placement problem. It does not contain placement results or implement positioning algorithms.
 
-## 3. Separation of Responsibilities
+## 3. Application Layer
 
-The domain model separates four concerns:
+The application layer implements operations that use domain objects to perform placement-related tasks.
 
-- **Geometry:** represents points and rectangular regions.
-- **Label definition:** represents textual content and its dimensions.
+It coordinates domain concepts without introducing rendering or infrastructure dependencies.
+
+### 3.1 CandidateGenerator
+
+`CandidateGenerator` generates possible positions for a single `LabelTarget`.
+
+It receives a `LabelTarget` and returns a collection of `Placement` objects representing alternative positions for its label.
+
+The generator produces eight candidates around the target's anchor:
+
+1. North
+2. North-East
+3. East
+4. South-East
+5. South
+6. South-West
+7. West
+8. North-West
+
+Candidates are generated in a fixed order to ensure deterministic results.
+
+The generator accepts a configurable gap that determines the separation between the anchor and the candidate label positions.
+
+The default gap is `5.0` coordinate units. The value must be finite and non-negative. A zero gap is valid.
+
+For diagonal positions, the gap is applied independently along both axes rather than representing a Euclidean distance.
+
+Candidate generation does not depend on the complete `Chart` object. Each target is processed independently.
+
+The generator does not:
+
+- Filter candidates based on the chart's plotting area.
+- Detect collisions between candidate placements.
+- Calculate placement scores.
+- Select an optimal placement.
+- Modify the original label target or its anchor.
+
+These responsibilities belong to subsequent stages of the placement pipeline.
+
+## 4. Separation of Responsibilities
+
+The architecture separates the following concerns:
+
+- **Geometry:** represents points and rectangular regions through `Point2D` and `Rectangle`.
+- **Label definition:** represents textual content and its dimensions through `Label`.
 - **Placement problem definition:** `Chart` groups the plotting area and `LabelTarget` objects, which associate labels with their original anchor positions.
 - **Label placement:** associates a label with a geometric position through `Placement`.
+- **Candidate generation:** the application layer generates alternative placements through `CandidateGenerator`.
 
 This separation avoids coupling textual content to geometric positioning or rendering concerns.
 
 For example, a label target can be used as input for generating multiple candidate positions without modifying either the label definition or its original anchor. The resulting placements can then be evaluated independently of the original chart data.
 
-## 4. Design Principles
+## 5. Design Principles
 
-The domain model follows these principles:
+The architecture follows these principles:
 
-- **Single responsibility:** each type represents one distinct domain concept.
+- **Single responsibility:** each type represents one distinct concept or operation.
 - **Value semantics:** core domain objects are modeled as values rather than entities with independent identities.
 - **Encapsulation:** internal state is protected and exposed through controlled interfaces.
 - **Validation at construction:** invalid domain objects are rejected when created.
-- **Separation of concerns:** geometry, label definition, placement problem definition, placement, and rendering remain independent.
+- **Separation of concerns:** geometry, label definition, placement problem definition, placement, candidate generation, and rendering remain independent.
+- **Determinism:** candidate generation produces the same results in the same order for identical inputs and configuration.
+- **Layer separation:** application services use domain objects without moving application-specific responsibilities into the domain model.
 
-These principles provide a foundation for implementing placement algorithms without coupling them to presentation or infrastructure details.
+These principles provide a foundation for implementing increasingly sophisticated placement algorithms without coupling them to presentation or infrastructure details.

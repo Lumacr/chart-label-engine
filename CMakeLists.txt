@@ -19,6 +19,8 @@ add_library(chart_label_engine STATIC
         src/domain/placement/placement.cpp
         src/domain/chart/label_target.cpp
         src/domain/chart/chart.cpp
+
+        src/application/placement/candidate_generator.cpp
 )
 
 target_include_directories(chart_label_engine
