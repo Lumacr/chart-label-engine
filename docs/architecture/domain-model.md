@@ -204,6 +204,26 @@ This comparison ensures that reducing collisions always takes priority over impr
 
 `PlacementScore` is independent of charts, placements, and optimization algorithms.
 
+### 3.4 PlacementScorer
+
+`PlacementScorer` evaluates a complete placement solution for a chart.
+
+It receives a `Chart` and a collection of `Placement` objects.
+
+The number of placements must match the number of label targets. Each placement must contain the label associated with the target at the same index.
+
+The scorer calculates three metrics:
+
+- **Collision count:** the number of overlapping placement pairs, using `CollisionDetector`.
+- **Boundary penalty:** the total distance by which placements extend beyond the chart's plotting area.
+- **Anchor distance:** the sum of the Euclidean distances between placement centers and their corresponding target anchors.
+
+The scorer returns a `PlacementScore` containing these metrics.
+
+It does not modify the chart or placements, generate candidates, or select an optimal solution.
+
+The scoring process is independent of optimization algorithms.
+
 ## 4. Separation of Responsibilities
 
 The architecture separates the following concerns:
@@ -234,5 +254,7 @@ The architecture follows these principles:
 - **Deterministic collision detection:** collision pairs are evaluated once and returned in a consistent order.
 - **Independent scoring:** placement evaluation is separated from candidate generation and optimization.
 - **Deterministic comparison:** placement scores use a consistent lexicographical ordering.
+- **Non-mutating evaluation:** scoring operations do not modify charts or placements.
+- **Solution consistency:** every placement must correspond to the label target at the same index.
 
 These principles provide a foundation for implementing increasingly sophisticated placement algorithms without coupling them to presentation or infrastructure details.

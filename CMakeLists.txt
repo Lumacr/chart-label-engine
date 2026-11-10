@@ -22,6 +22,7 @@ add_library(chart_label_engine STATIC
 
         src/application/placement/candidate_generator.cpp
         src/application/placement/collision_detector.cpp
+        src/application/placement/placement_scorer.cpp
 )
 
 target_include_directories(chart_label_engine

@@ -29,6 +29,9 @@ The scorer requires the number of placements to match the number of label target
 
 Each placement is associated with the target at the same index in the chart's label target collection.
 
+Each placement must contain the same label as its corresponding target.
+Solutions containing mismatched labels are rejected.
+
 ### 3. Use three scoring criteria
 
 The initial scoring model considers:
