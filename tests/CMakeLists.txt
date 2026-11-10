@@ -21,6 +21,7 @@ add_executable(chart_label_engine_tests
         application/placement/collision_detector_test.cpp
         application/placement/placement_score_test.cpp
         application/placement/placement_scorer_test.cpp
+        application/placement/greedy_placement_optimizer_test.cpp
 )
 
 target_link_libraries(chart_label_engine_tests

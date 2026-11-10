@@ -224,6 +224,44 @@ It does not modify the chart or placements, generate candidates, or select an op
 
 The scoring process is independent of optimization algorithms.
 
+### 3.5 GreedyPlacementOptimizer
+
+`GreedyPlacementOptimizer` selects a placement for every label target by applying a Greedy Local Improvement algorithm based on coordinate descent.
+
+It coordinates the existing application components:
+
+- `CandidateGenerator` generates alternative positions for each label target.
+- `PlacementScorer` evaluates complete placement solutions.
+
+The optimizer operates as follows:
+
+1. Generate and store the candidate placements for every label target.
+2. Initialize the solution using the first candidate of each target.
+3. Evaluate the initial solution using `PlacementScorer`.
+4. Iterate over each label target individually.
+5. Evaluate every candidate for the current target while keeping all other placements unchanged.
+6. Select the candidate with the best placement score.
+7. Accept a new placement only when it strictly improves the current solution.
+8. Repeat complete passes until no placement can be improved.
+
+The optimizer uses the lexicographical ordering defined by `PlacementScore`:
+
+1. Collision count.
+2. Boundary penalty.
+3. Anchor distance.
+
+When multiple candidates produce the same score, the existing placement is retained. This preserves deterministic behavior.
+
+The candidate gap is configurable and defaults to `5.0`.
+
+The optimizer preserves the original order of label targets and returns one placement for each target. An empty chart produces an empty solution.
+
+The optimizer does not modify the input chart.
+
+The algorithm guarantees that accepted changes never worsen the solution score. However, it only evaluates changes to one label at a time and may converge to a local optimum rather than a global optimum.
+
+`GreedyPlacementOptimizer` does not implement candidate generation or scoring itself. It coordinates these independent operations to produce a complete placement solution.
+
 ## 4. Separation of Responsibilities
 
 The architecture separates the following concerns:
@@ -235,6 +273,7 @@ The architecture separates the following concerns:
 - **Candidate generation:** the application layer generates alternative placements through `CandidateGenerator`.
 - **Collision detection:** identifies conflicting placements through `CollisionDetector`, returning their indices as `CollisionPair` objects.
 - **Placement scoring:** evaluates complete placement solutions using collision count, boundary penalty, and anchor distance.
+- **Placement optimization:** selects a complete placement solution through `GreedyPlacementOptimizer`, coordinating candidate generation and scoring using a Greedy Local Improvement strategy.
 
 This separation avoids coupling textual content to geometric positioning or rendering concerns.
 
@@ -256,5 +295,8 @@ The architecture follows these principles:
 - **Deterministic comparison:** placement scores use a consistent lexicographical ordering.
 - **Non-mutating evaluation:** scoring operations do not modify charts or placements.
 - **Solution consistency:** every placement must correspond to the label target at the same index.
+- **Deterministic optimization:** placement optimization produces consistent results for identical inputs and configuration.
+- **Monotonic improvement:** the greedy optimization algorithm accepts only strictly improving changes, ensuring that the solution score never worsens.
+- **Optimization separation:** placement optimization coordinates candidate generation and scoring without duplicating their responsibilities.
 
 These principles provide a foundation for implementing increasingly sophisticated placement algorithms without coupling them to presentation or infrastructure details.
