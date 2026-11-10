@@ -24,6 +24,8 @@ add_library(chart_label_engine STATIC
         src/application/placement/collision_detector.cpp
         src/application/placement/placement_scorer.cpp
         src/application/placement/greedy_placement_optimizer.cpp
+
+        src/rendering/svg/svg_renderer.cpp
 )
 
 target_include_directories(chart_label_engine
