@@ -258,11 +258,46 @@ The optimizer preserves the original order of label targets and returns one plac
 
 The optimizer does not modify the input chart.
 
+The optimization process terminates when a complete pass over all label targets produces no strictly improving placement. Since each target has a finite set of candidates and the optimizer accepts only strictly improving solutions, the algorithm cannot revisit a previous solution.
+
 The algorithm guarantees that accepted changes never worsen the solution score. However, it only evaluates changes to one label at a time and may converge to a local optimum rather than a global optimum.
 
 `GreedyPlacementOptimizer` does not implement candidate generation or scoring itself. It coordinates these independent operations to produce a complete placement solution.
 
-## 4. Separation of Responsibilities
+## 4. Rendering Layer
+
+The rendering layer converts placement solutions into visual representations without introducing presentation concerns into the domain model.
+
+### 4.1 SvgRenderer
+
+`SvgRenderer` generates a complete SVG document from a `Chart` and its corresponding collection of `Placement` objects.
+
+It represents:
+
+- The chart plotting area.
+- Label anchor points.
+- Final label positions.
+- Connections between anchors and label placements.
+- Visual indicators for colliding placements.
+- Visual indicators for placements extending beyond the plotting area.
+
+The renderer converts the domain coordinate system into SVG coordinates, accounting for the difference in vertical axis direction.
+
+It also calculates a viewport that includes the plotting area, placements, and anchors, with an additional visual margin.
+
+Before generating the document, the renderer validates that the number and order of placements correspond to the chart's label targets. It also validates label text against UTF-8 encoding requirements and XML 1.0 character restrictions.
+
+XML special characters are escaped, while valid Unicode and permitted XML whitespace characters are preserved.
+
+The renderer returns the SVG document as a `std::string`. It does not modify its input objects or perform filesystem operations.
+
+Collision visualization reuses the existing `CollisionDetector` from the application layer rather than implementing collision detection independently.
+
+Consequently, the rendering layer has an explicit dependency on the application layer for collision detection. This dependency is intentional and documented in the SVG Rendering architectural decision.
+
+The renderer does not perform placement generation, scoring, or optimization, and it does not measure text dimensions or implement a complete charting solution.
+
+## 5. Separation of Responsibilities
 
 The architecture separates the following concerns:
 
@@ -274,12 +309,13 @@ The architecture separates the following concerns:
 - **Collision detection:** identifies conflicting placements through `CollisionDetector`, returning their indices as `CollisionPair` objects.
 - **Placement scoring:** evaluates complete placement solutions using collision count, boundary penalty, and anchor distance.
 - **Placement optimization:** selects a complete placement solution through `GreedyPlacementOptimizer`, coordinating candidate generation and scoring using a Greedy Local Improvement strategy.
+- **Rendering:** converts charts and placement solutions into SVG documents through `SvgRenderer`, reusing application-level collision detection.
 
-This separation avoids coupling textual content to geometric positioning or rendering concerns.
+This separation prevents domain objects from depending on placement algorithms or presentation technologies. Application and rendering responsibilities remain outside the domain model.
 
-For example, a label target can be used as input for generating multiple candidate positions without modifying either the label definition or its original anchor. The resulting placements can then be evaluated independently of the original chart data.
+For example, a label target can be used as input for generating multiple candidate positions without modifying either the label definition or its original anchor. The resulting placements can then be evaluated independently of the original chart data and subsequently rendered as an SVG document.
 
-## 5. Design Principles
+## 6. Design Principles
 
 The architecture follows these principles:
 
@@ -287,9 +323,9 @@ The architecture follows these principles:
 - **Value semantics:** core domain objects are modeled as values rather than entities with independent identities.
 - **Encapsulation:** internal state is protected and exposed through controlled interfaces.
 - **Validation at construction:** invalid domain objects are rejected when created.
-- **Separation of concerns:** geometry, label definition, placement problem definition, placement, candidate generation, and rendering remain independent.
+- **Separation of concerns:** geometry, label definition, placement problem definition, placement, application operations, and rendering have distinct responsibilities.
 - **Determinism:** candidate generation produces the same results in the same order for identical inputs and configuration.
-- **Layer separation:** application services use domain objects without moving application-specific responsibilities into the domain model.
+- **Layer separation:** domain objects remain independent of application and rendering concerns. Application services depend on the domain layer, while the rendering layer reuses application functionality where required, as explicitly documented in the SVG Rendering decision.
 - **Deterministic collision detection:** collision pairs are evaluated once and returned in a consistent order.
 - **Independent scoring:** placement evaluation is separated from candidate generation and optimization.
 - **Deterministic comparison:** placement scores use a consistent lexicographical ordering.

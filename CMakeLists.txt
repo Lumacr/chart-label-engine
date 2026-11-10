@@ -1,3 +1,4 @@
+
 cmake_minimum_required(VERSION 3.20)
 
 project(
@@ -10,6 +11,12 @@ project(
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
+
+option(
+        BUILD_BENCHMARKS
+        "Build performance benchmarks"
+        OFF
+)
 
 add_library(chart_label_engine STATIC
         src/chart_label_engine.cpp
@@ -39,3 +46,6 @@ if(BUILD_TESTING)
     add_subdirectory(tests)
 endif()
 
+if(BUILD_BENCHMARKS)
+    add_subdirectory(benchmarks)
+endif()

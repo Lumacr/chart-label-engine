@@ -4,6 +4,7 @@
 # CMake
 cmake-build-*/
 build/
+build-benchmarks/
 out/
 
 # macOS

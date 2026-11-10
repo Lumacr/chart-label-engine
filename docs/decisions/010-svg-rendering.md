@@ -53,10 +53,16 @@ The renderer will validate that:
 
 1. The number of placements matches the number of label targets.
 2. Each placement contains the same label as the corresponding target at the same index.
+3. Label text contains valid UTF-8 sequences and only characters permitted by XML 1.0.
 
-Invalid placement solutions will result in `std::invalid_argument`.
+Invalid placement solutions or label text will result in `std::invalid_argument`.
 
-This validation ensures that every rendered placement can be associated with its original label target.
+UTF-8 validation rejects malformed, truncated, overlong, and otherwise invalid sequences. XML character validation rejects characters that cannot legally appear in an XML 1.0 document.
+
+Valid Unicode characters and permitted XML whitespace characters, including tab, line feed, and carriage return, are preserved.
+
+This validation ensures that every rendered placement can be associated with its original label target and that label text can be safely included in the generated SVG document.
+
 
 ### 2.3 Coordinate Transformation
 
@@ -98,9 +104,12 @@ The renderer will generate SVG markup directly as text without external graphics
 The output will use:
 
 - SVG elements for geometric shapes and text.
-- XML escaping for label text.
+- XML escaping for label text, including the five predefined XML special characters.
+- UTF-8 validation and XML 1.0 character validation before serialization.
 - Locale-independent numeric formatting.
 - Deterministic output for identical inputs.
+
+Valid Unicode characters are preserved in the generated SVG. Invalid UTF-8 sequences and characters prohibited by XML 1.0 are rejected.
 
 The initial implementation will not provide direct filesystem operations.
 
